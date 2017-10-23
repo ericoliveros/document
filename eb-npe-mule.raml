@@ -1,0 +1,97 @@
+#%RAML 1.0
+#baseUri: http://api.topdanmark.local/eb-npe-mule
+baseUri: https://mocksvc.mulesoft.com/mocks/c4924fd2-1c0e-4f90-8a00-bdca25617a22/eb-npe-mule
+title: NPE Agreement Data
+version: 1.0
+
+types:
+  Organization: !include types/Organisation.raml
+  Agreements: !include types/Agreements.raml
+  AgreementDetails: !include types/Agreement.raml
+  AgreementEmployeeList: !include types/AgreementEmployeeList.raml
+  EmployeeSummary: !include types/EmployeeSummary.raml
+  EmployeeDetails: !include types/EmployeeDetails.raml
+  PolicyUpdate: !include types/PolicyUpdate.raml
+  EmployeeStatusUpdate: !include types/EmployeeStatusUpdate.raml
+  AgreementUnSubscribe: !include types/AgreementUnSubscribe.raml
+  AgreementSubscribe: !include types/AgreementSubscribe.raml
+    
+uses:
+  resources: libraries/resourceTypes.raml
+
+
+/organisation:
+  description: "Retrieve Primary company name based on CVR Number"
+  type: 
+    resources.readOnlyCollectionContext:
+      typeName: Organization
+      exampleCollection: !include examples/Organisation.sample.json    
+  /agreements:
+    description: "Retrieve Agreements related to an Organization based on CVR Number"
+    type: 
+      resources.readOnlyCollectionContext:
+        typeName: Agreements
+        exampleCollection: !include examples/Agreements.sample.json
+    /{agreementId}:
+      description: "Retrieve Agreement details based on Agreement ID"
+      type: 
+        resources.readOnly-collection-item:
+          typeName: AgreementDetails
+          exampleItem: !include examples/AgreementDetails.sample.json
+      /employees:
+        description: "Retrieve Employees related to an Agreement based on AgreementId"
+        type:
+          resources.collection:
+           typeName: AgreementEmployeeList
+           exampleCollection: !include examples/AgreementEmployeeList.json
+        /subscribe:
+          description: "Signup a new employee for a selected agreement"
+          type:
+            resources.collection-item:
+              typeNameForCreate: AgreementSubscribe
+              exampleItemForCreate: !include examples/AgreementSubscribe.sample.json
+        /{empId}:
+          description: "Retrieve Employee details based on Employee ID"
+          type:
+            resources.readOnly-collection-item:
+              typeName: EmployeeDetails
+              exampleItem: !include examples/EmployeeDetails.sample.json
+          /policies:
+            description: "Change salary or Contribution or Pension Agreement"
+            type:
+              resources.update-collection-item:
+                typeNameForUpdate: PolicyUpdate
+                exampleItemForUpdate: !include examples/PolicyUpdate.sample.json
+                exampleResponseForUpdate: !include examples/PolicyUpdate.sample.json
+          /status:
+            description: "update the status of the employee leave-discontinued"
+            type: 
+              resources.update-collection-item:
+                typeNameForUpdate: EmployeeStatusUpdate
+                exampleItemForUpdate: !include examples/EmployeeStatusUpdate.sample.json          
+                exampleResponseForUpdate: !include examples/EmployeeStatusUpdate.sample.json
+          /unsubscribe:
+            description: "Unsubcribe the employee from the requested agreement"
+            type:
+              resources.delete-collection-item:
+                typeNameForDelete: AgreementUnSubscribe
+                exampleItemForDelete: !include examples/AgreementUnSubscribe.sample.json
+            
+    /employees:
+      description: "Retrieve Employees related to all Agreements based on CVR Number"
+      type:
+        resources.readOnlyCollectionContext:
+          typeName: AgreementEmployeeList
+          exampleCollection: !include examples/AgreementEmployeeList.json
+  /employees:
+    description: "Retrieve Employees related to an Organization based on CVR Number"
+    type:
+      resources.readOnlyCollectionContext:
+        typeName: EmployeeSummary
+        exampleCollection: !include examples/EmployeeSummary.sample.json            
+    /{empId}:
+      description: "Retrieve Employee details based on Employee ID"
+      type:
+        resources.readOnly-collection-item:
+          typeName: EmployeeDetails
+          exampleItem: !include examples/EmployeeDetails.sample.json
